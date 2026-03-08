@@ -30,7 +30,7 @@ function getRandomCharacter(faction = null, exclude = null) {
 }
 
 client.once("ready", async () => {
-  console.log(`✅ Bot online como ${client.user.tag}`);
+  console.log(`✅ Bot online as ${client.user.tag}`);
 
   const command = new SlashCommandBuilder()
     .setName("randomize")
@@ -38,19 +38,25 @@ client.once("ready", async () => {
     .addStringOption(option =>
       option
         .setName("faction")
-        .setDescription("survivor or hunter")
+        .setDescription("Survivor or Hunter")
         .addChoices(
           { name: "Survivor", value: "Survivor" },
           { name: "Hunter", value: "Hunter" }
         )
     );
 
-  await client.application.commands.create(command);
+  // THIS LINE IS THE IMPORTANT FIX
+  await client.application.commands.set([command]);
+
+  console.log("✅ Slash command registered");
 });
 
 client.on("interactionCreate", async interaction => {
+
   if (interaction.isChatInputCommand()) {
+
     if (interaction.commandName === "randomize") {
+
       const faction = interaction.options.getString("faction");
       const char = getRandomCharacter(faction);
 
@@ -71,11 +77,15 @@ client.on("interactionCreate", async interaction => {
         embeds: [embed],
         components: [row]
       });
+
     }
+
   }
 
   if (interaction.isButton()) {
+
     if (interaction.customId.startsWith("reroll_")) {
+
       const [, oldName, faction] = interaction.customId.split("_");
       const newChar = getRandomCharacter(faction, oldName);
 
@@ -96,8 +106,11 @@ client.on("interactionCreate", async interaction => {
         embeds: [embed],
         components: [row]
       });
+
     }
+
   }
+
 });
 
 client.login(process.env.TOKEN);
